@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADAS TechTour - Mondial Pare-Brise</title>
+    
+    <!-- Google tag (gtag.js) & Consent Mode v2 -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        // Initialisation du consentement par défaut (conformité RGPD)
+        const savedConsent = localStorage.getItem('mpb_cookie_consent');
+        gtag('consent', 'default', {
+            'analytics_storage': savedConsent === 'granted' ? 'granted' : 'denied',
+            'ad_storage': savedConsent === 'granted' ? 'granted' : 'denied',
+            'ad_user_data': savedConsent === 'granted' ? 'granted' : 'denied',
+            'ad_personalization': savedConsent === 'granted' ? 'granted' : 'denied'
+        });
+
+        gtag('js', new Date());
+        gtag('config', 'G-GXVMFJXEGZ');
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GXVMFJXEGZ"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="Monogramme Jaune AVEC RELIEF_Fond transparent.png">
+    
+    <style>
+        /* =========================================
+           1. CHARTE GRAPHIQUE ET TYPOGRAPHIE
+           ========================================= */
+        :root {
+            --blue: #0067B9;
+            --yellow: #FFC72C;
+            --white: #FFFFFF;
+            --light-bg: #D7EAFC; 
+            --font-mark-pro: 'Mark Pro', system-ui, -apple-system, sans-serif;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: var(--font-mark-pro);
+            background-color: var(--white);
+            width: 100%; height: 100vh;
+            overflow: hidden; 
+        }
+
+        h1, h2, h3 { font-weight: 900; color: var(--blue); margin: 0; }
+
+        /* =========================================
+           2. PRE-LOADER
+           ========================================= */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--white); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        #preloader.slide-up { transform: translateY(-100%); }
+        .logo-preloader { max-width: 250px; margin-bottom: 20px; }
+
+        .typewriter-container { display: inline-block; }
+        .typewriter-text {
+            overflow: hidden; border-right: .15em solid var(--yellow);
+            white-space: nowrap; margin: 0 auto;
+            font-size: clamp(1.5rem, 4vw, 2.5rem); letter-spacing: .05em; width: 0;
+            animation: typing 1.5s steps(30, end) 0.5s forwards, blink-caret .75s step-end infinite;
+        }
+        @keyframes typing { from { width: 0; } to { width: 100%; } }
+        @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: var(--yellow); } }
+
+        /* =========================================
+           3. BOUTONS GLOBAUX
+           ========================================= */
+        .btn {
+            font-family: var(--font-mark-pro); font-weight: 900; font-size: 1.1rem;
+            padding: 15px 30px; border-radius: 12px; cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; text-decoration: none; display: inline-block;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); }
+        .btn-solid { background-color: var(--yellow); color: var(--blue); border: 2px solid var(--yellow); }
+        .btn-outline { background-color: var(--white); color: var(--blue); border: 2px solid var(--yellow); }
+        .btn-blue { background-color: var(--blue); color: var(--white); border: none; }
+
+        /* =========================================
+           4. NAV-BARRE GLOBALE (Transparente + Flou)
+           ========================================= */
+        .navbar {
+            position: fixed; top: 30px; left: 10%; width: 80%;
+            padding: 15px 30px; 
+            background-color: rgba(215, 234, 252, 0.8); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .nav-logo { max-width: 150px; cursor: pointer; transition: transform 0.3s ease; }
+        .nav-logo:hover { transform: scale(1.05); }
+        .hamburger-btn {
+            background: none; border: none; cursor: pointer;
+            display: flex; flex-direction: column; gap: 6px; padding: 5px;
+        }
+        .hamburger-btn span {
+            display: block; width: 30px; height: 4px;
+            background-color: var(--blue); border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .hamburger-btn:hover span { background-color: var(--yellow); }
+
+        /* =========================================
+           5. PAGE D'ACCUEIL (HOMEPAGE)
+           ========================================= */
+        #homepage {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--white); z-index: 1000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            overflow: hidden; 
+        }
+        #homepage.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        .hero-container {
+            width: 80%; margin: 15vh auto 0;
+            display: flex; position: relative; min-height: 85vh;
+            align-items: center;
+        }
+        .hero-content { 
+            width: 55%; z-index: 20; 
+            transition: opacity 0.4s ease; 
+        }
+        .hero-title { font-size: clamp(3rem, 5vw + 1rem, 6.5rem); line-height: 0.95; text-transform: uppercase; margin-bottom: 20px; }
+        .hero-desc {
+            font-size: clamp(1rem, 1.2vw + 0.5rem, 1.3rem); color: var(--blue); margin-bottom: 40px; 
+            font-weight: 400; line-height: 1.5; max-width: 90%;
+        }
+        .hero-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+        
+        .hero-map {
+            position: absolute; right: -15vw; bottom: -10vh;
+            width: 65vw; height: auto; object-fit: contain; 
+            z-index: 10; pointer-events: none;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+            transform-origin: center center;
+        }
+        .hero-map.zoom-in { transform: scale(8) translate(-10vw, -10vh); opacity: 0; }
+
+        /* =========================================
+           6. MENU HAMBURGER (SIDEBAR 40%)
+           ========================================= */
+        #mobile-menu {
+            position: fixed; right: -40vw; top: 0; width: 40vw; height: 100vh;
+            background: var(--white); box-shadow: -5px 0 30px rgba(0,0,0,0.1);
+            transition: right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: 9999; padding: 40px 50px; display: flex; flex-direction: column;
+            box-sizing: border-box; overflow-y: auto;
+        }
+        #mobile-menu.open { right: 0; }
+        
+        .menu-close {
+            align-self: flex-end; font-size: 3rem; color: var(--blue);
+            background: none; border: none; cursor: pointer; font-weight: 900; 
+            margin-bottom: 40px; transition: transform 0.4s ease, color 0.4s ease;
+        }
+        .menu-close:hover { transform: rotate(90deg); color: var(--yellow); }
+
+        .menu-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 40px; }
+        .menu-links li a {
+            color: var(--blue); text-decoration: none; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 900;
+            transition: color 0.3s; cursor: pointer;
+        }
+        .menu-links li a:hover { color: var(--yellow); }
+
+        .menu-bottom { margin-top: auto; display: flex; flex-direction: column; width: 100%; padding-top: 40px;}
+        .menu-separator { width: 100%; height: 2px; background-color: var(--light-bg); margin: 0 0 30px 0; border: none; }
+        .social-icons { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        
+        .menu-legal-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            font-size: 0.82rem;
+        }
+        .menu-legal-links a {
+            color: var(--blue);
+            text-decoration: underline;
+            opacity: 0.75;
+            transition: opacity 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+        .menu-legal-links a:hover {
+            opacity: 1;
+            color: var(--yellow);
+        }
+        .menu-legal-links span {
+            color: var(--blue);
+            opacity: 0.4;
+        }
+        
+        .social-icon {
+            width: 45px; height: 45px; background-color: var(--blue); color: var(--white);
+            display: flex; align-items: center; justify-content: center; border-radius: 50%;
+            text-decoration: none; transition: background-color 0.3s, transform 0.3s;
+        }
+        .social-icon svg { width: 20px; height: 20px; fill: currentColor; }
+        .social-icon:hover { background-color: var(--yellow); transform: translateY(-3px); }
+
+        #menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.4); z-index: 9998;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s;
+        }
+        #menu-overlay.active { opacity: 1; visibility: visible; cursor: pointer; }
+
+        /* =========================================
+           7. PAGE EXPLICATIVE (ABOUT - SLIDE UP)
+           ========================================= */
+        #about-view {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--white); z-index: 1000;
+            transform: translateY(100%); opacity: 0; visibility: hidden; 
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease, visibility 0.8s ease;
+            overflow-y: auto; overflow-x: hidden; display: block; 
+        }
+        #about-view.visible { transform: translateY(0); opacity: 1; visibility: visible; }
+
+        .about-content {
+            width: 80%; max-width: 1200px; margin: 150px auto 100px auto; 
+            display: flex; gap: 60px; align-items: flex-start;
+        }
+        .about-text { width: 50%; padding-bottom: 50px; }
+        
+        .about-text h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 20px; text-transform: uppercase; color: var(--blue); }
+        .about-text h3 { font-size: 1.8rem; margin: 40px 0 15px 0; color: var(--yellow); }
+        .about-text p { font-size: 1.15rem; color: var(--blue); line-height: 1.6; margin-bottom: 20px; }
+        .about-text strong { font-weight: 900; }
+        .about-text ul { padding-left: 20px; margin-bottom: 25px; }
+        .about-text li { font-size: 1.15rem; color: var(--blue); line-height: 1.6; margin-bottom: 10px; }
+
+        .about-image {
+            width: 50%; height: 450px; position: sticky; top: 150px; 
+            border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .about-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* =========================================
+           8. CARTE PLEIN ÉCRAN ET DÉCALAGE (ENCADRÉ À 80%)
+           ========================================= */
+        #map-view {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--white); z-index: 1000;
+            opacity: 0; visibility: hidden; transition: opacity 0.5s ease; overflow: hidden;
+        }
+        #map-view.visible { opacity: 1; visibility: visible; }
+
+        .map-layout-wrapper {
+            position: absolute; top: 110px; left: 10%; width: 80%; height: calc(100vh - 130px);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .map-centerer {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            transition: width 0.8s cubic-bezier(0.64, 0, 0.23, 1), height 0.8s cubic-bezier(0.64, 0, 0.23, 1);
+        }
+        .map-view.panel-open .map-centerer { width: 48%; }
+
+        .map-container { 
+            position: relative; width: 100%; max-width: 750px; margin: 0 auto;
+            transition: transform 0.8s cubic-bezier(0.64, 0, 0.23, 1);
+        }
+        .map-background { width: 100%; height: auto; display: block; }
+
+        .pins-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; } 
+
+        /* PIN ACTIF (Déjà passé ou présent) */
+        .pin {
+            position: absolute; width: 28px; height: 28px;
+            background-color: var(--yellow); border: 4px solid var(--white); border-radius: 50%;
+            transform: translate(-50%, -50%) scale(1); cursor: pointer; pointer-events: auto;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        .pin::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 10px; height: 10px; background-color: var(--blue); border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .pin::before {
+            content: attr(data-city); position: absolute; bottom: 140%; left: 50%;
+            transform: translateX(-50%) translateY(10px); background-color: var(--blue); color: var(--white);
+            padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .pin:hover, .pin.active { transform: translate(-50%, -50%) scale(1.6); box-shadow: 0 6px 15px rgba(0, 103, 185, 0.4); z-index: 20; }
+        .pin:hover::before { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* PIN INACTIF (Dates futures) */
+        .pin.inactive {
+            width: 16px; height: 16px; border-width: 3px;
+            background-color: #B0BEC5; border-color: #ECEFF1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: default; z-index: 5;
+        }
+        .pin.inactive::after {
+            width: 6px; height: 6px;
+            background-color: #78909C;
+        }
+        .pin.inactive:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 15;
+        }
+
+        .truck-indicator {
+            position: absolute; width: 45px; height: 45px;
+            transform: translate(-50%, -130%); z-index: 30; pointer-events: none;
+            animation: bounce 1s infinite alternate cubic-bezier(0.5, 0.05, 1, 0.5);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+        .truck-indicator img { width: 100%; height: 100%; object-fit: contain; }
+        @keyframes bounce {
+            from { transform: translate(-50%, -100%); }
+            to { transform: translate(-50%, -150%); }
+        }
+
+        .map-close-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; display: none; cursor: pointer; }
+        .map-view.panel-open .map-close-overlay { display: block; }
+
+        /* =========================================
+           9. PANNEAU LATÉRAL (GALERIE & NOM VILLE)
+           ========================================= */
+        .photo-sidebar {
+            width: 0; height: 100%; background-color: transparent; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; opacity: 0; 
+            transition: width 0.8s cubic-bezier(0.64, 0, 0.23, 1), transform 0.8s cubic-bezier(0.64, 0, 0.23, 1), opacity 0.4s ease; 
+            z-index: 10;
+        }
+        .map-view.panel-open .photo-sidebar { width: 48%; opacity: 1; }
+
+        .sidebar-content { width: 100%; display: flex; flex-direction: column; justify-content: center; }
+
+        .gallery-title {
+            font-size: clamp(1.8rem, 2.5vw, 2.6rem); color: var(--blue); text-transform: uppercase; margin-bottom: 6px;
+            opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .gallery-date {
+            font-size: 1.1rem; font-weight: 700; color: var(--blue); margin: 0 0 20px 0;
+            opacity: 0; transform: translateY(15px); transition: opacity 0.5s ease, transform 0.5s ease;
+            background-color: var(--light-bg); display: inline-block; padding: 5px 14px; border-radius: 8px; width: fit-content;
+        }
+        .map-view.panel-open .gallery-title { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+        .map-view.panel-open .gallery-date { opacity: 1; transform: translateY(0); transition-delay: 0.35s; }
+
+        .photo-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); 
+            gap: 2vh; height: calc(100% - 70px); width: 100%;
+        }
+
+        .photo-grid img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 16px; border: 3px solid var(--white);
+            background-color: var(--light-bg); box-sizing: border-box; box-shadow: 0 10px 20px rgba(0,0,0,0.1); cursor: zoom-in;
+            opacity: 0; transform: scale(0.5); 
+            transition: opacity 0.5s ease, transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .photo-grid img.show { opacity: 1; transform: scale(1); }
+        .photo-grid img.show:hover { transform: scale(1.04); box-shadow: 0 15px 30px rgba(0,0,0,0.25); z-index: 2; position: relative; }
+
+        /* =========================================
+           10. LIGHTBOX & MODAL
+           ========================================= */
+        .lightbox {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(0, 0, 0, 0.85); z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .lightbox.active { opacity: 1; visibility: visible; }
+        .lightbox img {
+            max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: scale(0.7); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .lightbox.active img { transform: scale(1); }
+        .lightbox-close {
+            position: absolute; top: 30px; right: 40px; font-size: 3rem; color: var(--white);
+            cursor: pointer; font-family: sans-serif; transition: color 0.2s; z-index: 2;
+        }
+        .lightbox-close:hover { color: var(--yellow); }
+
+        /* =========================================
+           11. POP-UP DE CONTACT
+           ========================================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); z-index: 100000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: var(--white); padding: 40px; border-radius: 16px;
+            text-align: center; position: relative; max-width: 400px; width: 90%;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            transform: translateY(20px); transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-close {
+            position: absolute; top: 15px; right: 20px; font-size: 2rem;
+            color: var(--blue); background: none; border: none; cursor: pointer; transition: color 0.3s;
+        }
+        .modal-close:hover { color: var(--yellow); }
+        .phone-number { font-size: 2.5rem; font-weight: 900; color: var(--blue); margin: 20px 0; letter-spacing: 2px; }
+
+        /* =========================================
+           12. RESPONSIVE QUERIES
+           ========================================= */
+        @media (min-width: 1441px) {
+            .navbar { max-width: 1400px; left: 50%; transform: translateX(-50%); }
+            .hero-container { max-width: 1400px; margin: 15vh auto 0; }
+            .map-layout-wrapper { max-width: 1400px; left: 50%; transform: translateX(-50%); }
+        }
+
+        @media (max-width: 1024px) {
+            .hero-map { width: 85vw; right: -25vw; bottom: -5vh; }
+            .about-content { flex-direction: column; gap: 40px; margin-top: 120px; align-items: center; }
+            .about-text, .about-image { width: 100%; }
+            .about-image { position: relative; top: 0; height: 400px; margin-bottom: 50px; }
+            #mobile-menu { width: 50vw; right: -50vw; }
+            
+            .map-view.panel-open .map-centerer { width: 100%; }
+            .photo-sidebar {
+                position: absolute; right: 0; top: 0; width: 60%; 
+                background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+                border-radius: 20px; box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+                transform: translateX(120%); opacity: 1; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            }
+            .map-view.panel-open .photo-sidebar { width: 60%; transform: translateX(0); }
+            .sidebar-content { padding: 20px; box-sizing: border-box; }
+        }
+
+        @media (max-width: 768px) {
+            .navbar { width: 90%; left: 5%; top: 15px; padding: 10px 20px; }
+            .nav-logo { max-width: 120px; }
+            
+            .hero-container { margin-top: 12vh; flex-direction: column; align-items: center; }
+            .hero-content { width: 100%; padding-top: 2vh; text-align: center; }
+            .hero-desc { margin-left: auto; margin-right: auto; }
+            .hero-buttons { justify-content: center; }
+            
+            .hero-map { width: 140vw; right: -20vw; bottom: -10vh; opacity: 0.35; z-index: 1; }
+            .hero-map.zoom-in { transform: scale(4) translate(0, -20vh); opacity: 0;}
+
+            #mobile-menu { width: 100vw; right: -100vw; padding: 30px; }
+            
+            .map-layout-wrapper { width: 90%; left: 5%; flex-direction: column; justify-content: flex-start; }
+            .map-view.panel-open .map-centerer { width: 100%; height: 45%; }
+            .map-container { transform: scale(1); } 
+            .map-view.panel-open .map-container { transform: scale(0.85); }
+            
+            .photo-sidebar { 
+                position: absolute; top: auto; bottom: 0; right: 0;
+                width: 100%; height: 55%;
+                background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+                border-radius: 20px 20px 0 0; 
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.1); 
+                transform: translateY(100%);
+            }
+            .map-view.panel-open .photo-sidebar { width: 100%; transform: translateY(0); }
+            
+            .sidebar-content { width: 100%; padding: 20px; justify-content: flex-start; height: 100%; box-sizing: border-box;}
+            .gallery-title { text-align: center; margin-bottom: 4px; font-size: 1.8rem; }
+            .gallery-date { margin: 0 auto 15px auto; font-size: 0.95rem; }
+            .photo-grid { gap: 10px; height: calc(100% - 50px); overflow-y: auto; padding-bottom: 20px; }
+            
+            /* Ajustement mobile pour pins inactifs */
+            .pin.inactive { width: 14px; height: 14px; border-width: 2px; }
+            .pin.inactive::after { width: 5px; height: 5px; }
+            
+            .pin { width: 22px; height: 22px; border-width: 3px; }
+            .pin::after { width: 8px; height: 8px; }
+            .truck-indicator { width: 40px; height: 40px; transform: translate(-50%, -120%); }
+            @keyframes bounce { from { transform: translate(-50%, -120%); } to { transform: translate(-50%, -160%); } }
+        }
+
+        /* =========================================
+           13. BANDEAU DE COOKIES (RGPD / CONSENT)
+           ========================================= */
+        .cookie-banner {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            width: calc(100% - 60px);
+            max-width: 880px;
+            background-color: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid var(--light-bg);
+            border-radius: 20px;
+            padding: 20px 26px;
+            box-shadow: 0 10px 40px rgba(0, 103, 185, 0.15), 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            box-sizing: border-box;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.5s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .cookie-banner.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .cookie-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            flex: 1;
+        }
+        .cookie-icon {
+            font-size: 2rem;
+            line-height: 1;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .cookie-text {
+            color: var(--blue);
+            font-size: 0.95rem;
+            line-height: 1.45;
+            margin: 0;
+        }
+        .cookie-text strong {
+            font-weight: 900;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 1.05rem;
+        }
+        .cookie-policy-link {
+            color: var(--blue);
+            text-decoration: underline;
+            font-weight: 700;
+            margin-left: 4px;
+            transition: opacity 0.2s;
+        }
+        .cookie-policy-link:hover {
+            opacity: 0.8;
+            color: var(--blue);
+        }
+        .cookie-buttons {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        .cookie-btn {
+            font-family: var(--font-mark-pro);
+            font-weight: 900;
+            font-size: 0.95rem;
+            padding: 12px 22px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            white-space: nowrap;
+        }
+        .cookie-btn:hover {
+            transform: translateY(-2px);
+        }
+        .cookie-btn-accept {
+            background-color: var(--yellow);
+            color: var(--blue);
+            border: 2px solid var(--yellow);
+            box-shadow: 0 4px 12px rgba(255, 199, 44, 0.35);
+        }
+        .cookie-btn-accept:hover {
+            box-shadow: 0 6px 16px rgba(255, 199, 44, 0.5);
+        }
+        .cookie-btn-refuse {
+            background-color: var(--white);
+            color: var(--blue);
+            border: 2px solid var(--blue);
+        }
+        .cookie-btn-refuse:hover {
+            background-color: var(--light-bg);
+        }
+        @media (max-width: 768px) {
+            .cookie-banner {
+                bottom: 15px;
+                width: calc(100% - 30px);
+                flex-direction: column;
+                padding: 18px 20px;
+                gap: 16px;
+                border-radius: 16px;
+            }
+            .cookie-content {
+                gap: 12px;
+            }
+            .cookie-icon {
+                font-size: 1.6rem;
+            }
+            .cookie-text {
+                font-size: 0.88rem;
+            }
+            .cookie-buttons {
+                width: 100%;
+                display: flex;
+                flex-direction: column-reverse;
+                gap: 8px;
+            }
+            .cookie-btn {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+                font-size: 0.9rem;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PRE-LOADER -->
+    <div id="preloader">
+        <img src="Logo Horizontal Bleu & Jaune_Fond transparent.png" alt="Mondial Pare-Brise" class="logo-preloader">
+        <div class="typewriter-container">
+            <h1 class="typewriter-text">ADAS TechTour</h1>
+        </div>
+    </div>
+
+    <!-- POP-UP CONTACT -->
+    <div id="contact-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-contact" class="modal-close">&times;</button>
+            <h2>Nous contacter</h2>
+            <p>Appelez-nous au numéro suivant :</p>
+            <div class="phone-number">0 805 16 17 18</div>
+            <a href="tel:0805161718" class="btn btn-solid" style="display: block; text-align: center;">Appeler maintenant</a>
+        </div>
+    </div>
+
+    <!-- NAV-BARRE GLOBALE -->
+    <header class="navbar">
+        <img src="Logo Horizontal Bleu & Jaune_Fond transparent.png" alt="Mondial Pare-Brise" class="nav-logo" id="nav-logo">
+        <button id="open-menu" class="hamburger-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <!-- MENU HAMBURGER (SIDEBAR) & OVERLAY -->
+    <div id="menu-overlay"></div>
+    <nav id="mobile-menu">
+        <button id="close-menu" class="menu-close" aria-label="Fermer le menu">&times;</button>
+        <ul class="menu-links">
+            <li><a id="link-map">Carte ADAS TechTour</a></li>
+            <li><a id="link-about">C'est quoi L'ADAS TechTour ?</a></li>
+            <li><a href="https://www.mondialparebrise.fr/" target="_blank" rel="noopener noreferrer">MondialPareBrise.fr</a></li>
+        </ul>
+        
+        <div class="menu-bottom">
+            <hr class="menu-separator">
+            <div class="social-icons">
+                <a href="https://www.facebook.com/mondialparebrise/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook">
+                    <svg viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/mondialparebrise/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Instagram">
+                    <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                </a>
+                <a href="https://www.tiktok.com/@mondial_pare_brise" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="TikTok">
+                    <svg viewBox="0 0 448 512"><path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/company/mondialparebrise/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn">
+                    <svg viewBox="0 0 448 512"><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>
+                </a>
+            </div>
+            <button id="btn-contact" class="btn btn-blue" style="width: 100%; box-sizing: border-box; text-align: center;">Nous contacter</button>
+            <div class="menu-legal-links">
+                <a href="https://www.mondialparebrise.fr/footer/mentions-legales" target="_blank" rel="noopener noreferrer">Mentions légales</a>
+                <span>•</span>
+                <a href="https://www.mondialparebrise.fr/footer/politique-de-protection-des-donnees-personnelles" target="_blank" rel="noopener noreferrer">Confidentialité</a>
+                <span>•</span>
+                <a id="link-cookies">Cookies</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE D'ACCUEIL -->
+    <div id="homepage">
+        <img src="Carte de France.png" alt="Carte France" class="hero-map">
+
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">ADAS<br>TECHTOUR</h1>
+                <p class="hero-desc">Découvrez l'innovation au cœur de nos centres avec notre parcours interactif et suivez notre tour de France de la technologie ADAS.</p>
+                <div class="hero-buttons">
+                    <button id="btn-what-is" class="btn btn-solid">C'est quoi l'ADAS TechTour ?</button>
+                    <button id="btn-discover" class="btn btn-outline">Découvrir ADAS TechTour</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE EXPLICATIVE -->
+    <div id="about-view">
+        <div class="about-content">
+            <div class="about-text">
+                <h2>À la découverte de l'ADAS TechTour</h2>
+                <p>La sécurité routière vit une véritable révolution technologique. Pour vous aider à mieux comprendre ces innovations qui équipent nos véhicules d'aujourd'hui et de demain, Mondial Pare-Brise vous invite à bord de son événement inédit : l'<strong>ADAS TechTour</strong>.</p>
+                
+                <h3>Qu'est-ce que l'ADAS ?</h3>
+                <p>L'acronyme <strong>ADAS</strong> signifie <em>Advanced Driver Assistance Systems</em>, que l'on traduit en français par <strong>Systèmes d'Aide à la Conduite</strong>.</p>
+                <p>Concrètement, ce sont toutes les technologies intelligentes conçues pour assister le conducteur, prévenir les accidents et améliorer le confort sur la route. Vous les utilisez probablement déjà au quotidien :</p>
+                <ul>
+                    <li>Le freinage d'urgence automatique.</li>
+                    <li>L'aide au maintien dans la voie de circulation.</li>
+                    <li>Le régulateur de vitesse adaptatif.</li>
+                    <li>La reconnaissance des panneaux de signalisation.</li>
+                </ul>
+                <p><strong>Le saviez-vous ?</strong> Ces systèmes s'appuient sur un réseau ultra-sensible de caméras, de radars et de capteurs. La majorité de ces équipements de pointe sont directement embarqués... <strong>sur votre pare-brise !</strong> C'est pourquoi, après tout remplacement de vitrage, un recalibrage millimétrique de ces caméras est absolument indispensable pour que vos aides à la conduite continuent de fonctionner parfaitement.</p>
+
+                <h3>Qu'est-ce que l'ADAS TechTour ?</h3>
+                <p>Parce que cette technologie est complexe et souvent invisible, nous avons décidé de la rendre concrète et accessible à tous. C'est ainsi qu'est né l'<strong>ADAS TechTour</strong>.</p>
+                <p>Il s'agit d'un véritable <strong>Tour de France de l'innovation automobile</strong>. Nous avons conçu et équipé un camion événementiel unique en son genre qui sillonne les routes de l'Hexagone pour venir à votre rencontre.</p>
+                <p>Lors de chaque étape, ce camion exceptionnel se déploie pour se transformer en un véritable <strong>showroom technologique et interactif</strong>.</p>
+                
+                <p><strong>Au programme de ce village mobile :</strong></p>
+                <ul>
+                    <li><strong>Démystification :</strong> Plongez dans les coulisses de votre véhicule pour comprendre comment il "voit" la route.</li>
+                    <li><strong>Démonstrations détaillées :</strong> Découvrez nos équipements de pointe et assistez à des démonstrations de recalibrage réalisées par nos experts.</li>
+                    <li><strong>Pédagogie :</strong> Échangez avec nos techniciens pour tout savoir sur l'importance de l'expertise ADAS dans votre sécurité quotidienne.</li>
+                </ul>
+                <p>L'ADAS TechTour, c'est l'occasion unique de voir l'invisible et de découvrir l'exigence technique qui se cache derrière chaque intervention Mondial Pare-Brise !</p>
+            </div>
+            <div class="about-image">
+                <img src="shoootin-photo-12.jpg" alt="Explication ADAS TechTour">
+            </div>
+        </div>
+    </div>
+
+    <!-- CARTE INTERACTIVE -->
+    <div id="map-view" class="map-view">
+        <div class="map-layout-wrapper">
+            <div class="map-centerer">
+                <div id="map-container" class="map-container">
+                    <div id="map-close-overlay" class="map-close-overlay"></div>
+                    <img src="Carte de France.png" alt="Carte de France" class="map-background">
+                    <div id="pins-layer" class="pins-layer"></div>
+                </div>
+            </div>
+
+            <aside id="photo-sidebar" class="photo-sidebar">
+                <div class="sidebar-content">
+                    <h2 id="gallery-city-name" class="gallery-title">Ville</h2>
+                    <span id="gallery-city-date" class="gallery-date">Date</span>
+                    <div id="photo-grid" class="photo-grid"></div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- BANDEAU DE COOKIES -->
+    <div id="cookie-banner" class="cookie-banner" role="dialog" aria-modal="true" aria-label="Gestion des cookies">
+        <div class="cookie-content">
+            <span class="cookie-icon" aria-hidden="true">🍪</span>
+            <p class="cookie-text">
+                <strong>Gestion des cookies & mesure d'audience</strong>
+                Nous utilisons des cookies analytiques pour mesurer l'audience de notre site et améliorer votre expérience sur l'ADAS Tech Tour. <a href="https://www.mondialparebrise.fr/footer/politique-de-protection-des-donnees-personnelles" target="_blank" rel="noopener noreferrer" class="cookie-policy-link">En savoir plus</a>
+            </p>
+        </div>
+        <div class="cookie-buttons">
+            <button id="cookie-refuse" class="cookie-btn cookie-btn-refuse">Continuer sans accepter</button>
+            <button id="cookie-accept" class="cookie-btn cookie-btn-accept">Tout accepter</button>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox">
+        <span id="lightbox-close" class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="Image agrandie">
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // --- GESTION DES VUES ET DU MENU ---
+            const preloader = document.getElementById('preloader');
+            const homepage = document.getElementById('homepage');
+            const aboutView = document.getElementById('about-view');
+            const mapView = document.getElementById('map-view');
+            
+            const btnWhatIs = document.getElementById('btn-what-is');
+            const btnDiscover = document.getElementById('btn-discover');
+            const navLogo = document.getElementById('nav-logo'); 
+            const heroMap = document.querySelector('.hero-map'); 
+            const heroContent = document.querySelector('.hero-content'); 
+
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuOverlay = document.getElementById('menu-overlay');
+            const openMenuBtn = document.getElementById('open-menu');
+            const closeMenuBtn = document.getElementById('close-menu');
+
+            // --- GESTION DU POP-UP DE CONTACT ---
+            const btnContact = document.getElementById('btn-contact');
+            const contactModal = document.getElementById('contact-modal');
+            const closeContact = document.getElementById('close-contact');
+
+            btnContact.addEventListener('click', () => {
+                toggleMenu(); 
+                contactModal.classList.add('active'); 
+            });
+
+            closeContact.addEventListener('click', () => {
+                contactModal.classList.remove('active');
+            });
+
+            contactModal.addEventListener('click', (e) => {
+                if (e.target === contactModal) {
+                    contactModal.classList.remove('active');
+                }
+            });
+
+            // Pre-loader
+            setTimeout(() => { preloader.classList.add('slide-up'); }, 2000);
+
+            // Menu Hamburger
+            function toggleMenu() {
+                mobileMenu.classList.toggle('open');
+                menuOverlay.classList.toggle('active');
+            }
+            openMenuBtn.addEventListener('click', toggleMenu);
+            closeMenuBtn.addEventListener('click', toggleMenu);
+            menuOverlay.addEventListener('click', toggleMenu);
+
+            // Navigations
+            function showHome() {
+                aboutView.classList.remove('visible');
+                mapView.classList.remove('visible');
+                
+                heroMap.classList.remove('zoom-in');
+                heroContent.style.opacity = '1';
+
+                homepage.classList.remove('hidden');
+                closePanel(); 
+            }
+
+            // --- ANIMATION : C'est quoi l'ADAS TechTour ? (SLIDE UP) ---
+            btnWhatIs.addEventListener('click', () => {
+                homepage.classList.add('hidden');
+                aboutView.classList.add('visible');
+            });
+
+            // --- ANIMATION : Découvrir ADAS TechTour (ZOOM MAP) ---
+            btnDiscover.addEventListener('click', () => {
+                heroMap.classList.add('zoom-in');
+                heroContent.style.opacity = '0'; 
+
+                setTimeout(() => {
+                    homepage.classList.add('hidden');
+                    mapView.classList.add('visible');
+                }, 800);
+            });
+
+            // Liens du menu
+            document.getElementById('link-map').addEventListener('click', () => {
+                toggleMenu();
+                homepage.classList.add('hidden');
+                aboutView.classList.remove('visible');
+                mapView.classList.add('visible');
+            });
+            document.getElementById('link-about').addEventListener('click', () => {
+                toggleMenu();
+                homepage.classList.add('hidden');
+                mapView.classList.remove('visible');
+                aboutView.classList.add('visible');
+            });
+
+            // Logo -> Retour accueil global
+            navLogo.addEventListener('click', showHome);
+
+
+            /* --- LOGIQUE CARTE & PINS CHRONOLOGIQUE --- */
+            const dateActuelle = new Date(); 
+
+            const pinsData = [
+                { id: 'Paris', x: 53, y: 26, date: '2026-09-15T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Le Mans', x: 38, y: 36, date: '2026-09-17T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Toulouse', x: 45, y: 83, date: '2026-09-22T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Aix-en-Provence', x: 73, y: 82, date: '2026-09-24T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Valence', x: 67, y: 68, date: '2026-09-25T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Lyon', x: 67, y: 61, date: '2026-09-29T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Sens', x: 56, y: 34, date: '2026-10-01T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Auxerre', x: 58, y: 40, date: '2026-10-02T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Poitiers', x: 39, y: 52, date: '2026-10-05T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Niort', x: 33, y: 56, date: '2026-10-08T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Beaune', x: 67, y: 47, date: '2026-10-13T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Rouen', x: 46, y: 19, date: '2026-10-15T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Niort (2)', x: 35, y: 57, date: '2026-10-20T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Charleville-Mézières', x: 69, y: 16, date: '2026-10-27T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Sedan', x: 72, y: 17, date: '2026-10-28T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Verdun', x: 75, y: 23, date: '2026-10-29T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Châlons-en-Champagne', x: 64, y: 27, date: '2026-10-30T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Chambray-lès-Tours', x: 43, y: 46, date: '2026-11-03T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Evènement Apporteurs d\'Affaires', x: 55, y: 28, date: '2026-11-05T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Haguenau', x: 88, y: 26, date: '2026-11-12T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Sarreguemines', x: 84, y: 24, date: '2026-11-13T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Vinzelles', x: 66, y: 56, date: '2026-11-17T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Le Creusot', x: 63, y: 51, date: '2026-11-18T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Nevers', x: 56, y: 48, date: '2026-11-19T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Avermes', x: 58, y: 54, date: '2026-11-20T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Chalon-sur-Saône', x: 66, y: 50, date: '2026-11-24T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Saint-Apollinaire', x: 68, y: 44, date: '2026-11-25T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Sauvagnon', x: 33, y: 86, date: '2026-11-25T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Serres-Castet', x: 35, y: 85, date: '2026-11-26T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Vichy', x: 61, y: 57, date: '2026-11-27T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Vienne', x: 67, y: 64, date: '2027-05-29T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] },
+                { id: 'Salon Auto Moto - Toulouse', x: 47, y: 85, date: '2027-11-01T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-12.jpg'] }
+            ];
+
+            const pinsLayer = document.getElementById("pins-layer");
+            const photoGrid = document.getElementById("photo-grid");
+            const galleryCityName = document.getElementById("gallery-city-name");
+            const galleryCityDate = document.getElementById("gallery-city-date");
+            const mapCloseOverlay = document.getElementById("map-close-overlay");
+
+            // Détermination intelligente du dernier point actif
+            let lastActiveIndex = -1;
+            pinsData.forEach((pin, index) => {
+                if (new Date(pin.date) <= dateActuelle) {
+                    lastActiveIndex = index;
+                }
+            });
+
+            // Si la tournée n'a pas encore débuté, on place le point de départ sur Paris (étape 1) avec le camion
+            if (lastActiveIndex === -1 && pinsData.length > 0) {
+                lastActiveIndex = 0;
+            }
+
+            // Construction DOM de tous les points
+            pinsData.forEach((pin, index) => {
+                const pinElement = document.createElement("div");
+                pinElement.classList.add("pin");
+                pinElement.setAttribute("data-city", pin.id);
+                pinElement.style.left = `${pin.x}%`;
+                pinElement.style.top = `${pin.y}%`;
+                
+                const isActive = index <= lastActiveIndex;
+
+                if (isActive) {
+                    pinElement.addEventListener("click", () => openPanel(pin, pinElement));
+                    
+                    // --- AJOUT DU CAMION SUR LA DERNIÈRE ÉTAPE VISIBLE ---
+                    if (index === lastActiveIndex) {
+                        const truck = document.createElement("div");
+                        truck.classList.add("truck-indicator");
+                        truck.style.left = `${pin.x}%`;
+                        truck.style.top = `${pin.y}%`;
+                        truck.innerHTML = `<img src="Camion MPB.svg" alt="Camion">`;
+                        pinsLayer.appendChild(truck);
+                    }
+                } else {
+                    // Rend le point futur "inactif" (petit et gris)
+                    pinElement.classList.add("inactive");
+                }
+                
+                pinsLayer.appendChild(pinElement);
+            });
+
+            /* --- GESTION DU PANNEAU LATÉRAL --- */
+            function formatFrenchDate(dateString) {
+                try {
+                    const d = new Date(dateString);
+                    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                } catch(e) {
+                    return '';
+                }
+            }
+
+            function openPanel(pinData, pinElement) {
+                mapView.classList.add('panel-open');
+                document.querySelectorAll('.pin').forEach(p => p.classList.remove('active'));
+                pinElement.classList.add('active');
+
+                // Titre et Date
+                galleryCityName.textContent = pinData.id;
+                galleryCityDate.textContent = formatFrenchDate(pinData.date);
+
+                photoGrid.innerHTML = "";
+                pinData.photos.forEach((src, index) => {
+                    const img = document.createElement("img");
+                    
+                    img.onerror = function() {
+                        this.src = "https://via.placeholder.com/800x600/F2F6FA/0067B9?text=Image+Introuvable";
+                    };
+                    
+                    img.src = src; 
+                    img.alt = "Photo " + pinData.id;
+                    
+                    img.addEventListener("click", () => openLightbox(img.src));
+                    photoGrid.appendChild(img);
+
+                    setTimeout(() => {
+                        img.classList.add("show");
+                    }, 50 + (index * 100));
+                });
+            }
+
+            function closePanel() {
+                mapView.classList.remove('panel-open');
+                document.querySelectorAll('.pin').forEach(p => p.classList.remove('active'));
+                setTimeout(() => {
+                    if(!mapView.classList.contains('panel-open')) {
+                        photoGrid.innerHTML = ""; 
+                    }
+                }, 800);
+            }
+            mapCloseOverlay.addEventListener("click", closePanel);
+
+            /* --- LIGHTBOX --- */
+            const lightbox = document.getElementById("lightbox");
+            const lightboxImg = document.getElementById("lightbox-img");
+            const lightboxClose = document.getElementById("lightbox-close");
+
+            function openLightbox(src) {
+                lightboxImg.src = src;
+                lightbox.classList.add("active");
+            }
+            function closeLightbox() {
+                lightbox.classList.remove("active");
+                setTimeout(() => lightboxImg.src = "", 300);
+            }
+
+            lightboxClose.addEventListener("click", closeLightbox);
+            lightbox.addEventListener("click", (e) => {
+                if (e.target !== lightboxImg) { closeLightbox(); }
+            });
+
+            /* --- FERMETURE AVEC LA TOUCHE ÉCHAP --- */
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' || e.key === 'Esc') {
+                    if (lightbox.classList.contains('active')) {
+                        closeLightbox();
+                    } else if (contactModal.classList.contains('active')) {
+                        contactModal.classList.remove('active');
+                    } else if (mobileMenu.classList.contains('open')) {
+                        toggleMenu();
+                    } else if (mapView.classList.contains('panel-open')) {
+                        closePanel();
+                    }
+                }
+            });
+
+            /* --- GESTION DU BANDEAU DE COOKIES (RGPD & GA4) --- */
+            const cookieBanner = document.getElementById('cookie-banner');
+            const cookieAcceptBtn = document.getElementById('cookie-accept');
+            const cookieRefuseBtn = document.getElementById('cookie-refuse');
+            const linkCookies = document.getElementById('link-cookies');
+
+            function updateAnalyticsConsent(isGranted) {
+                const status = isGranted ? 'granted' : 'denied';
+                localStorage.setItem('mpb_cookie_consent', status);
+                
+                if (typeof gtag === 'function') {
+                    gtag('consent', 'update', {
+                        'analytics_storage': status,
+                        'ad_storage': status,
+                        'ad_user_data': status,
+                        'ad_personalization': status
+                    });
+                }
+            }
+
+            function hideCookieBanner() {
+                cookieBanner.classList.remove('visible');
+            }
+
+            function showCookieBanner() {
+                cookieBanner.classList.add('visible');
+            }
+
+            // Vérification du consentement existant
+            const currentConsent = localStorage.getItem('mpb_cookie_consent');
+            if (!currentConsent) {
+                // Afficher après la fin de l'animation de préchargement
+                setTimeout(() => {
+                    showCookieBanner();
+                }, 2200);
+            }
+
+            cookieAcceptBtn.addEventListener('click', () => {
+                updateAnalyticsConsent(true);
+                hideCookieBanner();
+            });
+
+            cookieRefuseBtn.addEventListener('click', () => {
+                updateAnalyticsConsent(false);
+                hideCookieBanner();
+            });
+
+            if (linkCookies) {
+                linkCookies.addEventListener('click', () => {
+                    toggleMenu();
+                    showCookieBanner();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
