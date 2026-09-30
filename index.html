@@ -28,6 +28,10 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="Monogramme Jaune AVEC RELIEF_Fond transparent.png">
 
+    <!-- Leaflet Interactive Map pour le zoom détaillé par ville -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <style>
         /* =========================================
            1. CHARTE GRAPHIQUE ET TYPOGRAPHIE
@@ -566,13 +570,14 @@
 
         .map-layout-wrapper {
             position: absolute;
-            top: 110px;
-            left: 10%;
-            width: 80%;
-            height: calc(100vh - 130px);
+            top: 105px;
+            left: 5%;
+            width: 90%;
+            height: calc(100vh - 125px);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            box-sizing: border-box;
         }
 
         .map-centerer {
@@ -585,20 +590,28 @@
         }
 
         .map-view.panel-open .map-centerer {
-            width: 48%;
+            width: 50%;
         }
 
         .map-container {
             position: relative;
             width: 100%;
-            max-width: 750px;
+            max-width: min(720px, calc((100vh - 160px) * 1.05));
             margin: 0 auto;
             transition: transform 0.8s cubic-bezier(0.64, 0, 0.23, 1);
+        }
+
+        .france-map-view {
+            position: relative;
+            width: 100%;
+            transition: opacity 0.35s ease;
         }
 
         .map-background {
             width: 100%;
             height: auto;
+            max-height: calc(100vh - 190px);
+            object-fit: contain;
             display: block;
         }
 
@@ -610,6 +623,328 @@
             height: 100%;
             pointer-events: none;
             z-index: 6;
+        }
+
+        /* =========================================
+           VUE DÉTAILLÉE DU PLAN DE VILLE (LEAFLET)
+           ========================================= */
+        .city-map-view {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F8FAFC;
+            border: 2px solid var(--light-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.97);
+            transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 60;
+            box-shadow: 0 12px 35px rgba(0, 103, 185, 0.15);
+        }
+
+        .city-map-view.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .city-map-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--light-bg);
+            z-index: 1000;
+            gap: 10px;
+        }
+
+        .city-map-title-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .city-map-badge {
+            background-color: var(--yellow);
+            color: var(--blue);
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .city-map-title {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--blue);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-back-to-france {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: linear-gradient(135deg, var(--blue) 0%, #004d8a 100%);
+            color: var(--white);
+            border: none;
+            border-radius: 20px;
+            font-family: var(--font-mark-pro);
+            font-size: 0.8rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 103, 185, 0.3);
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-back-to-france:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #004d8a 0%, #003660 100%);
+            box-shadow: 0 6px 14px rgba(0, 103, 185, 0.45);
+        }
+
+        .city-leaflet-map {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            min-height: 250px;
+            background-color: #E2E8F0;
+            z-index: 500;
+        }
+
+        /* Leaflet custom controls styling */
+        .leaflet-control-zoom {
+            border: 2px solid var(--light-bg) !important;
+            border-radius: 12px !important;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            margin-top: 12px !important;
+            margin-right: 12px !important;
+        }
+
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            background-color: var(--white) !important;
+            color: var(--blue) !important;
+            font-weight: 900 !important;
+            font-size: 16px !important;
+            width: 34px !important;
+            height: 34px !important;
+            line-height: 34px !important;
+            transition: background-color 0.2s ease, color 0.2s ease !important;
+        }
+
+        .leaflet-control-zoom-in:hover,
+        .leaflet-control-zoom-out:hover {
+            background-color: var(--blue) !important;
+            color: var(--yellow) !important;
+        }
+
+        .city-stages-bar {
+            display: flex;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1.5px solid var(--light-bg);
+            overflow-x: auto;
+            z-index: 1000;
+        }
+
+        .city-stage-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--white);
+            border: 1.5px solid var(--light-bg);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--blue);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            font-family: var(--font-mark-pro);
+        }
+
+        .city-stage-chip:hover,
+        .city-stage-chip.active {
+            background: var(--blue);
+            color: var(--white);
+            border-color: var(--blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 103, 185, 0.25);
+        }
+
+        .city-stage-chip .chip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--yellow);
+        }
+
+        .city-stage-chip.is-future .chip-dot {
+            background-color: #94A3B8;
+        }
+
+        /* CUSTOM LEAFLET MARKERS */
+        .leaflet-custom-pin {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .leaflet-pin-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: var(--blue);
+            color: var(--white);
+            border: 2px solid var(--yellow);
+            border-radius: 16px;
+            font-family: var(--font-mark-pro);
+            font-size: 0.75rem;
+            font-weight: 900;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 103, 185, 0.4);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .leaflet-custom-pin:hover .leaflet-pin-card {
+            transform: scale(1.06);
+            background: #004d8a;
+        }
+
+        .leaflet-pin-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--yellow);
+            border: 2.5px solid var(--white);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            margin-top: 1px;
+        }
+
+        .leaflet-custom-pin.is-future .leaflet-pin-card {
+            background: #475569;
+            border-color: #CBD5E1;
+        }
+
+        .leaflet-custom-pin.is-future .leaflet-pin-dot {
+            background-color: #94A3B8;
+        }
+
+        .leaflet-truck-badge {
+            width: 30px;
+            height: 30px;
+            margin-bottom: -3px;
+            animation: bounce 1s infinite alternate cubic-bezier(0.5, 0.05, 1, 0.5);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        /* CLUSTER PIN (Point de regroupement sur la carte de France) */
+        .cluster-pin {
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--blue) 0%, #004d8a 100%);
+            color: var(--white);
+            border: 3px solid var(--yellow);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 25;
+            box-shadow: 0 4px 12px rgba(0, 103, 185, 0.4), 0 0 0 4px rgba(246, 184, 0, 0.35);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            animation: cluster-pulse 2.5s infinite;
+        }
+
+        @keyframes cluster-pulse {
+            0% {
+                box-shadow: 0 4px 12px rgba(0, 103, 185, 0.4), 0 0 0 0 rgba(246, 184, 0, 0.6);
+            }
+            70% {
+                box-shadow: 0 4px 12px rgba(0, 103, 185, 0.4), 0 0 0 10px rgba(246, 184, 0, 0);
+            }
+            100% {
+                box-shadow: 0 4px 12px rgba(0, 103, 185, 0.4), 0 0 0 0 rgba(246, 184, 0, 0);
+            }
+        }
+
+        .cluster-pin:hover {
+            transform: translate(-50%, -50%) scale(1.25);
+            box-shadow: 0 6px 20px rgba(0, 103, 185, 0.6), 0 0 0 6px rgba(246, 184, 0, 0.5);
+            z-index: 50;
+        }
+
+        .cluster-pin::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 140%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background-color: var(--blue);
+            color: var(--white);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            z-index: 60;
+        }
+
+        .cluster-pin:hover::before {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .legend-cluster-sample {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, var(--blue) 0%, #004d8a 100%);
+            color: var(--white);
+            border: 2px solid var(--yellow);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.68rem;
+            font-weight: 800;
         }
 
         /* PIN ACTIF (Déjà passé ou présent) */
@@ -638,6 +973,25 @@
             background-color: var(--blue);
             border-radius: 50%;
             transform: translate(-50%, -50%);
+        }
+
+        /* ADAPTATION TAILLES EN MODE ZOOM */
+        .map-container.is-zoomed .pin {
+            transform: translate(-50%, -50%) scale(0.65);
+        }
+        .map-container.is-zoomed .pin:hover,
+        .map-container.is-zoomed .pin.active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+        .map-container.is-zoomed .pin.inactive {
+            transform: translate(-50%, -50%) scale(0.65);
+        }
+        .map-container.is-zoomed .pin.inactive:hover,
+        .map-container.is-zoomed .pin.inactive.active {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+        .map-container.is-zoomed .truck-indicator {
+            transform: translate(-50%, -120%) scale(0.65);
         }
 
         .pin::before {
@@ -1703,13 +2057,36 @@
         <div class="map-layout-wrapper">
             <div class="map-centerer">
                 <div id="map-container" class="map-container">
-                    <div id="map-close-overlay" class="map-close-overlay"></div>
-                    <img src="Carte de France.png" alt="Carte de France" class="map-background">
-                    <div id="pins-layer" class="pins-layer"></div>
+                    <!-- 1. VUE CARTE DE FRANCE -->
+                    <div id="france-map-view" class="france-map-view">
+                        <div id="map-close-overlay" class="map-close-overlay"></div>
+                        <img src="Carte de France.png" alt="Carte de France" class="map-background">
+                        <div id="pins-layer" class="pins-layer"></div>
+                    </div>
+
+                    <!-- 2. VUE DÉTAILLÉE PLAN DE VILLE (LEAFLET) -->
+                    <div id="city-map-view" class="city-map-view">
+                        <div class="city-map-header">
+                            <div class="city-map-title-box">
+                                <span class="city-map-badge">Plan Urbain</span>
+                                <h3 id="city-map-title" class="city-map-title">Agglomération de Paris</h3>
+                            </div>
+                            <button id="btn-back-to-france" class="btn-back-to-france" aria-label="Revenir à la carte de France">
+                                <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                                <span>Carte France</span>
+                            </button>
+                        </div>
+                        <div id="city-leaflet-map" class="city-leaflet-map"></div>
+                        <div id="city-stages-bar" class="city-stages-bar"></div>
+                    </div>
+
                     <div class="map-legend">
                         <div class="legend-item"><span class="legend-dot dot-active"></span> Étape passée</div>
-                        <div class="legend-item"><span class="legend-dot dot-future"></span> Étape à venir ce mois-ci</div>
-                        <div class="legend-item"><img src="Camion MPB.svg" alt="Camion" class="legend-truck"> Étape en cours</div>
+                        <div class="legend-item"><span class="legend-dot dot-future"></span> Étape à venir</div>
+                        <div class="legend-item"><span class="legend-cluster-sample">2</span> Regroupement (cliquez pour voir la ville)</div>
+                        <div class="legend-item"><img src="Camion MPB.svg" alt="Camion" class="legend-truck"> Position actuelle</div>
                     </div>
                 </div>
             </div>
@@ -1850,15 +2227,6 @@
             navLogo.addEventListener('click', showHome);
 
 
-            /* =========================================================================
-               GESTION DU FILTRE DE LA CARTE (ÉTAPES PASSÉES + MOIS EN COURS)
-               =========================================================================
-               - 'auto' : Affiche automatiquement toutes les étapes passées + celles du mois en cours.
-               - Pour forcer un mois précis manuellement (ex. chaque mois) :
-                 changez 'auto' par l'année et le mois au format 'AAAA-MM' (ex: '2026-09', '2026-10', '2026-11'...).
-            ========================================================================= */
-            const FILTRE_MOIS_CARTE = 'auto'; // 'auto' ou '2026-09', '2026-10', etc.
-
             /* --- LOGIQUE CARTE & PINS CHRONOLOGIQUE --- */
             const dateActuelle = new Date();
 
@@ -1866,8 +2234,9 @@
                 { 
                     id: 'Saint-Malo', 
                     x: 29, y: 28, 
+                    lat: 48.6515, lng: -2.0193,
                     date: '2026-06-12T12:00:00+02:00', 
-                    lieu: 'Saint-Malo (Palais du Grand Large)', 
+                    lieu: 'Palais du Grand Large (1 Quai Duguay-Trouin, 35400 Saint-Malo)', 
                     photos: [
                         'photos/saint-malo/photo-1.jpg',
                         'photos/saint-malo/photo-2.jpg',
@@ -1879,11 +2248,12 @@
                 { 
                     id: 'Hippodrome de Saint-Cloud', 
                     x: 52.0, y: 26.5, 
+                    lat: 48.8527, lng: 2.2055,
                     tooltipPos: 'bottom-left',
                     date: '2026-06-15T12:00:00+02:00', 
                     endDate: '2026-06-24T12:00:00+02:00', 
                     dateLabel: 'du 15 au 24 juin 2026', 
-                    lieu: 'Hippodrome de Saint-Cloud', 
+                    lieu: 'Hippodrome de Saint-Cloud (1 rue du Camp Canadien, 92210 Saint-Cloud)', 
                     photos: [
                         'photos/saint-cloud/photo-1.jpg',
                         'photos/saint-cloud/photo-2.jpg'
@@ -1892,81 +2262,155 @@
                 { 
                     id: 'Paris - Longchamp', 
                     x: 53.2, y: 25.6, 
+                    lat: 48.8616, lng: 2.2313,
                     tooltipPos: 'top-right',
                     date: '2026-09-15T12:00:00+02:00', 
-                    lieu: 'Salon Fleet & Mobility Day (Paris Longchamp)', 
+                    lieu: 'Salon Fleet & Mobility Day (Hippodrome de ParisLongchamp, 2 Route des Tribunes, 75016 Paris)', 
                     photos: [
-                        'photos/paris/photo-1.jpg',
-                        'photos/paris/photo-2.jpg'
+                        'photos/paris/Fleet and mobility 2026-071.jpg',
+                        'photos/paris/IMG_6848.jpeg'
                     ] 
                 },
                 { 
                     id: 'Le Mans', 
                     x: 38, y: 36, 
+                    lat: 47.9560, lng: 0.2077,
                     date: '2026-09-17T12:00:00+02:00', 
-                    lieu: 'Parking du Circuit des 24h du Mans', 
+                    lieu: 'Parking du Circuit des 24h du Mans (Place Luigi Chinetti, 72100 Le Mans)', 
                     photos: [
-                        'shoootin-photo-12.jpg',
-                        'shoootin-photo-3.jpg'
+                        'photos/le-mans/IMG_6875.jpeg',
+                        'photos/le-mans/IMG_6876.jpeg',
+                        'photos/le-mans/IMG_6891.jpeg'
                     ] 
                 },
                 { 
                     id: 'Toulouse', 
                     x: 45, y: 83, 
+                    lat: 43.6635, lng: 1.3552,
                     date: '2026-09-22T12:00:00+02:00', 
-                    lieu: 'MEETT Toulouse Événements (Rue Claudie Haigneré, Aussonne)', 
+                    lieu: 'MEETT Toulouse Événements (Rue Claudie Haigneré, 31840 Aussonne)', 
                     photos: [
-                        'shoootin-photo-12.jpg',
-                        'shoootin-photo-3.jpg'
+                        'photos/toulouse/IMG-20260930-WA0005.jpg',
+                        'photos/toulouse/IMG-20260930-WA0064.jpg'
                     ] 
                 },
                 { 
                     id: 'Aix-en-Provence', 
                     x: 73, y: 82, 
+                    lat: 43.4726, lng: 5.3998,
                     date: '2026-09-24T12:00:00+02:00', 
-                    lieu: 'Aréna du Pays d\'Aix', 
+                    lieu: 'Aréna du Pays d\'Aix (1955 Rue Claude Nicolas Ledoux, 13290 Aix-en-Provence)', 
                     photos: [
-                        'shoootin-photo-12.jpg',
-                        'shoootin-photo-3.jpg'
+                        'photos/aix-en-provence/IMG-20260930-WA0009.jpg',
+                        'photos/aix-en-provence/IMG-20260930-WA0011.jpg',
+                        'photos/aix-en-provence/IMG-20260930-WA0012.jpg'
                     ] 
                 },
                 { 
                     id: 'Lyon Bron', 
                     x: 67, y: 61, 
+                    lat: 45.7251, lng: 4.9289,
                     date: '2026-09-29T12:00:00+02:00', 
-                    lieu: 'Novotel Lyon Bron', 
+                    lieu: 'Novotel Lyon Bron (260 Avenue Jean Monnet, 69500 Bron)', 
                     photos: [
-                        'shoootin-photo-12.jpg',
-                        'shoootin-photo-3.jpg'
+                        'photos/lyon/IMG-20260930-WA0020.jpg',
+                        'photos/lyon/IMG-20260930-WA0051.jpg',
+                        'photos/lyon/IMG-20260930-WA0062.jpg',
+                        'photos/lyon/IMG-20260930-WA0063.jpg'
                     ] 
                 },
-                { id: 'Sens', x: 56, y: 34, date: '2026-10-01T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Auxerre', x: 58, y: 40, date: '2026-10-02T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Poitiers', x: 39, y: 52, date: '2026-10-05T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Niort', x: 33, y: 56, date: '2026-10-08T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Beaune', x: 67, y: 47, date: '2026-10-13T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Rouen', x: 46, y: 19, date: '2026-10-15T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Niort (2)', x: 35, y: 57, date: '2026-10-20T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Charleville-Mézières', x: 69, y: 16, date: '2026-10-27T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Sedan', x: 72, y: 17, date: '2026-10-28T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Verdun', x: 75, y: 23, date: '2026-10-29T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Châlons-en-Champagne', x: 64, y: 27, date: '2026-10-30T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Chambray-lès-Tours', x: 43, y: 46, date: '2026-11-03T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Evènement Apporteurs d\'Affaires', x: 55, y: 28, date: '2026-11-05T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Haguenau', x: 88, y: 26, date: '2026-11-12T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Sarreguemines', x: 84, y: 24, date: '2026-11-13T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Vinzelles', x: 66, y: 56, date: '2026-11-17T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Le Creusot', x: 63, y: 51, date: '2026-11-18T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Nevers', x: 56, y: 48, date: '2026-11-19T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Avermes', x: 58, y: 54, date: '2026-11-20T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Chalon-sur-Saône', x: 66, y: 50, date: '2026-11-24T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Saint-Apollinaire', x: 68, y: 44, date: '2026-11-25T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Sauvagnon', x: 33, y: 86, date: '2026-11-25T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Serres-Castet', x: 35, y: 85, date: '2026-11-26T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Vichy', x: 61, y: 57, date: '2026-11-27T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Vienne', x: 67, y: 64, date: '2027-05-29T12:00:00+02:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] },
-                { id: 'Salon Auto Moto - Toulouse', x: 47, y: 85, date: '2027-11-01T12:00:00+01:00', photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg', 'shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] }
+                { 
+                    id: 'Sens', 
+                    x: 56, y: 34, 
+                    lat: 48.1765, lng: 3.2896,
+                    date: '2026-10-01T12:00:00+02:00', 
+                    lieu: 'Centre Mondial Pare-Brise Sens (Parking extérieur, 3 Boulevard Jean Delpech ZAC Sud, 89100 Sens)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Auxerre', 
+                    x: 58, y: 40, 
+                    lat: 47.8067, lng: 3.5817,
+                    date: '2026-10-02T12:00:00+02:00', 
+                    lieu: 'Centre Mondial Pare-Brise Auxerre (Parking extérieur, 1 rue de la Plaine Saint-Martin, 89000 Auxerre)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Poitiers - Futuroscope', 
+                    x: 39.0, y: 50.8, 
+                    lat: 46.6698, lng: 0.3638,
+                    date: '2026-10-05T12:00:00+02:00', 
+                    lieu: 'Arena FUTUROSCOPE (Entrée du parking principal, Avenue du Futuroscope, 86360 Chasseneuil-du-Poitou)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Poitiers - Pacifica', 
+                    x: 39.3, y: 51.5, 
+                    lat: 46.6562, lng: 0.3649,
+                    date: '2026-10-06T12:00:00+02:00', 
+                    endDate: '2026-10-07T12:00:00+02:00', 
+                    dateLabel: 'les 6 et 7 octobre 2026', 
+                    lieu: 'PACIFICA Poitiers (Parking extérieur, 1 avenue Galilée, Immeuble Arobase 7bis, 86360 Chasseneuil-du-Poitou)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Niort - Campus MACIF', 
+                    x: 33.2, y: 56.2, 
+                    lat: 46.3100, lng: -0.4681,
+                    date: '2026-10-08T12:00:00+02:00', 
+                    lieu: 'Campus MACIF - Espace Buteaudrie (Boulevard Jean Moulin, 79000 Niort)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Beaune', 
+                    x: 67, y: 47, 
+                    lat: 47.0125, lng: 4.8447,
+                    date: '2026-10-13T12:00:00+02:00', 
+                    lieu: 'Palais des Congrès de Beaune (Parking principal, 19 avenue Charles de Gaulle, 21200 Beaune)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Rouen', 
+                    x: 46, y: 19, 
+                    lat: 49.4339, lng: 1.0753,
+                    date: '2026-10-15T12:00:00+02:00', 
+                    lieu: 'Centre Mondial Pare-Brise Rouen (Parking extérieur, 14 avenue Jean Rondeaux, 76000 Rouen)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Niort - MAIF', 
+                    x: 33.6, y: 56.7, 
+                    lat: 46.3268, lng: -0.4877,
+                    date: '2026-10-19T12:00:00+02:00', 
+                    endDate: '2026-10-22T12:00:00+02:00', 
+                    dateLabel: 'du 19 au 22 octobre 2026', 
+                    lieu: 'Gymnase MAIF (7 avenue Salvador Allendé, 79000 Niort)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Verdun', 
+                    x: 75, y: 23, 
+                    lat: 49.1565, lng: 5.3617,
+                    date: '2026-10-29T12:00:00+01:00', 
+                    lieu: 'Hôtel du Tigre (22 avenue de Paris, 55100 Verdun)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                },
+                { 
+                    id: 'Châlons-en-Champagne', 
+                    x: 64, y: 27, 
+                    lat: 48.9755, lng: 4.3566,
+                    date: '2026-10-30T12:00:00+01:00', 
+                    lieu: 'Centre Mondial Pare-Brise Châlons-en-Champagne (9 avenue Ampère, 51000 Châlons-en-Champagne)', 
+                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                }
             ];
+
+            // Éléments du DOM
+            const franceMapView = document.getElementById("france-map-view");
+            const cityMapView = document.getElementById("city-map-view");
+            const cityMapTitle = document.getElementById("city-map-title");
+            const cityStagesBar = document.getElementById("city-stages-bar");
+            const btnBackToFrance = document.getElementById("btn-back-to-france");
 
             const pinsLayer = document.getElementById("pins-layer");
             const photoGrid = document.getElementById("photo-grid");
@@ -1983,7 +2427,7 @@
                 }
             });
 
-            // Si la tournée n'a pas encore débuté, on place le point de départ sur Paris (étape 1) avec le camion
+            // Si la tournée n'a pas encore débuté, on place le point de départ sur Saint-Malo avec le camion
             if (lastActiveIndex === -1 && pinsData.length > 0) {
                 lastActiveIndex = 0;
             }
@@ -2002,56 +2446,265 @@
                 });
             }
 
-            // Construction DOM des points filtrés (passés + mois ciblé)
+            // Calcul du filtre mensuel avec anticipation à partir du 30 de chaque mois
+            const currentYear = dateActuelle.getFullYear();
+            const currentMonth = dateActuelle.getMonth(); // 0 à 11
+            const currentDay = dateActuelle.getDate();
+
+            // Mois suivant
+            const nextMonthDate = new Date(currentYear, currentMonth + 1, 1);
+            const nextYear = nextMonthDate.getFullYear();
+            const nextMonth = nextMonthDate.getMonth();
+
+            // À partir du 30 de chaque mois, on anticipe et on affiche les étapes du mois suivant
+            const isTransitionEndOfMonth = currentDay >= 30;
+
+            // Récupération des points visibles selon le filtre mensuel
+            const visiblePins = [];
             pinsData.forEach((pin, index) => {
                 const pinDate = new Date(pin.date);
                 const isActive = index <= lastActiveIndex;
 
-                // Année-Mois du point (ex: "2026-09")
-                const pinYearMonth = pinDate.getFullYear() + '-' + String(pinDate.getMonth() + 1).padStart(2, '0');
-                
-                // Mois cible de référence
-                const moisCible = (FILTRE_MOIS_CARTE === 'auto')
-                    ? (dateActuelle.getFullYear() + '-' + String(dateActuelle.getMonth() + 1).padStart(2, '0'))
-                    : FILTRE_MOIS_CARTE;
+                const isCurrentMonth = (pinDate.getFullYear() === currentYear && pinDate.getMonth() === currentMonth);
+                const isNextMonth = (pinDate.getFullYear() === nextYear && pinDate.getMonth() === nextMonth);
 
-                // Règle d'affichage :
-                // 1. Toujours afficher toutes les étapes passées ou en cours (isActive)
-                // 2. Pour les étapes futures, afficher uniquement celles du mois en cours / ciblé
-                const estVisible = isActive || (pinYearMonth === moisCible);
-
-                if (!estVisible) {
-                    return; // Ne pas afficher sur la carte pour garder la carte épurée
+                const estVisible = isActive || isCurrentMonth || (isTransitionEndOfMonth && isNextMonth);
+                if (estVisible) {
+                    visiblePins.push({ pin, index, isActive });
                 }
-
-                const pinElement = document.createElement("div");
-                pinElement.classList.add("pin");
-                pinElement.setAttribute("data-city", pin.id);
-                if (pin.tooltipPos) {
-                    pinElement.setAttribute("data-tooltip-pos", pin.tooltipPos);
-                }
-                pinElement.style.left = `${pin.x}%`;
-                pinElement.style.top = `${pin.y}%`;
-
-                if (isActive) {
-                    // --- AJOUT DU CAMION SUR LA DERNIÈRE ÉTAPE VISIBLE ---
-                    if (index === lastActiveIndex) {
-                        const truck = document.createElement("div");
-                        truck.classList.add("truck-indicator");
-                        truck.style.left = `${pin.x}%`;
-                        truck.style.top = `${pin.y}%`;
-                        truck.innerHTML = `<img src="Camion MPB.svg" alt="Camion">`;
-                        pinsLayer.appendChild(truck);
-                    }
-                } else {
-                    // Rend le point futur "inactif" (petit et gris mais cliquable pour voir les infos)
-                    pinElement.classList.add("inactive");
-                }
-
-                pinElement.addEventListener("click", () => openPanel(pin, pinElement, isActive));
-
-                pinsLayer.appendChild(pinElement);
             });
+
+            // --- REGROUPEMENT INTELLIGENT DES POINTS PROCHES (CLUSTERING) ---
+            const CLUSTER_DISTANCE_THRESHOLD = 3.2; // Seuil max en % sur la carte pour regrouper
+
+            function computeClusters(items, threshold = 3.2) {
+                const clusters = [];
+                const used = new Set();
+
+                for (let i = 0; i < items.length; i++) {
+                    if (used.has(i)) continue;
+                    const group = [items[i]];
+                    used.add(i);
+
+                    for (let j = i + 1; j < items.length; j++) {
+                        if (used.has(j)) continue;
+                        const dist = Math.hypot(items[i].pin.x - items[j].pin.x, items[i].pin.y - items[j].pin.y);
+                        if (dist <= threshold) {
+                            group.push(items[j]);
+                            used.add(j);
+                        }
+                    }
+
+                    if (group.length > 1) {
+                        const avgX = group.reduce((sum, item) => sum + item.pin.x, 0) / group.length;
+                        const avgY = group.reduce((sum, item) => sum + item.pin.y, 0) / group.length;
+                        clusters.push({
+                            isCluster: true,
+                            items: group,
+                            x: avgX,
+                            y: avgY,
+                            count: group.length,
+                            hasLastActive: group.some(item => item.index === lastActiveIndex)
+                        });
+                    } else {
+                        clusters.push({
+                            isCluster: false,
+                            item: group[0],
+                            x: group[0].pin.x,
+                            y: group[0].pin.y,
+                            hasLastActive: group[0].index === lastActiveIndex
+                        });
+                    }
+                }
+                return clusters;
+            }
+
+            // --- PLAN DE VILLE INTERACTIF DÉTAILLÉ (LEAFLET) ---
+            let leafletMapInstance = null;
+            let currentCityCluster = null;
+
+            function initLeafletMapIfNeeded() {
+                if (!leafletMapInstance && typeof L !== 'undefined') {
+                    leafletMapInstance = L.map('city-leaflet-map', {
+                        zoomControl: false,
+                        attributionControl: false,
+                        scrollWheelZoom: true
+                    });
+
+                    // Fond de carte urbain détaillé et 100% gratuit OpenStreetMap France (sans clé API ni watermark)
+                    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+                        maxZoom: 20,
+                        subdomains: ['a', 'b', 'c']
+                    }).addTo(leafletMapInstance);
+
+                    // Boutons de zoom positionnés proprement en haut à droite
+                    L.control.zoom({ position: 'topright' }).addTo(leafletMapInstance);
+                }
+            }
+
+            function openCityView(cluster) {
+                currentCityCluster = cluster;
+                franceMapView.style.opacity = "0";
+                franceMapView.style.pointerEvents = "none";
+                cityMapView.classList.add("active");
+
+                initLeafletMapIfNeeded();
+
+                // Nom convivial de la zone urbaine
+                let zoneName = "Plan de la zone";
+                if (cluster.items.some(i => i.pin.id.includes("Saint-Cloud") || i.pin.id.includes("Paris"))) {
+                    zoneName = "Paris & Saint-Cloud";
+                } else if (cluster.items.some(i => i.pin.id.includes("Poitiers"))) {
+                    zoneName = "Poitiers - Chasseneuil";
+                } else if (cluster.items.some(i => i.pin.id.includes("Niort"))) {
+                    zoneName = "Agglomération de Niort";
+                }
+                cityMapTitle.textContent = `${zoneName} (${cluster.count} étapes)`;
+
+                // Nettoyage des anciens marqueurs
+                if (leafletMapInstance) {
+                    leafletMapInstance.eachLayer((layer) => {
+                        if (layer instanceof L.Marker) {
+                            leafletMapInstance.removeLayer(layer);
+                        }
+                    });
+                }
+
+                // Génération des marqueurs détaillés et de la barre d'accès rapide
+                cityStagesBar.innerHTML = "";
+                const latLngs = [];
+
+                cluster.items.forEach(({ pin, index, isActive }) => {
+                    if (pin.lat && pin.lng && leafletMapInstance) {
+                        latLngs.push([pin.lat, pin.lng]);
+
+                        const isTruckHere = (index === lastActiveIndex);
+                        const truckHtml = isTruckHere ? '<img src="Camion MPB.svg" class="leaflet-truck-badge" alt="Camion">' : '';
+
+                        const icon = L.divIcon({
+                            className: 'leaflet-custom-pin' + (isActive ? ' is-active' : ' is-future'),
+                            html: `
+                                ${truckHtml}
+                                <div class="leaflet-pin-card">${pin.id}</div>
+                                <div class="leaflet-pin-dot"></div>
+                            `,
+                            iconSize: [180, 52],
+                            iconAnchor: [90, 50]
+                        });
+
+                        const marker = L.marker([pin.lat, pin.lng], { icon: icon }).addTo(leafletMapInstance);
+                        marker.on('click', () => {
+                            openPanel(pin, null, isActive);
+                        });
+                    }
+
+                    // Puce interactive en bas de l'écran urbain
+                    const chip = document.createElement("button");
+                    chip.className = "city-stage-chip" + (isActive ? "" : " is-future");
+                    chip.innerHTML = `<span class="chip-dot"></span><span>${pin.id}</span>`;
+                    chip.addEventListener("click", () => {
+                        document.querySelectorAll('.city-stage-chip').forEach(c => c.classList.remove('active'));
+                        chip.classList.add('active');
+                        if (leafletMapInstance && pin.lat && pin.lng) {
+                            leafletMapInstance.flyTo([pin.lat, pin.lng], 15, { duration: 0.8 });
+                        }
+                        openPanel(pin, null, isActive);
+                    });
+                    cityStagesBar.appendChild(chip);
+                });
+
+                // Recentrage automatique Leaflet sur les points de la ville
+                setTimeout(() => {
+                    if (leafletMapInstance) {
+                        leafletMapInstance.invalidateSize();
+                        if (latLngs.length > 0) {
+                            const bounds = L.latLngBounds(latLngs);
+                            leafletMapInstance.fitBounds(bounds, { padding: [55, 55], maxZoom: 15 });
+                        }
+                    }
+                }, 150);
+            }
+
+            function closeCityView() {
+                cityMapView.classList.remove("active");
+                franceMapView.style.opacity = "1";
+                franceMapView.style.pointerEvents = "auto";
+                currentCityCluster = null;
+            }
+
+            if (btnBackToFrance) {
+                btnBackToFrance.addEventListener("click", closeCityView);
+            }
+
+            // Fonction de rendu des points et regroupements sur la carte de France
+            function renderFranceMapPins() {
+                pinsLayer.innerHTML = "";
+                const clusters = computeClusters(visiblePins, CLUSTER_DISTANCE_THRESHOLD);
+
+                clusters.forEach((entry) => {
+                    if (entry.isCluster) {
+                        // Badge de regroupement multi-étapes
+                        const clusterEl = document.createElement("div");
+                        clusterEl.classList.add("cluster-pin");
+                        clusterEl.style.left = `${entry.x}%`;
+                        clusterEl.style.top = `${entry.y}%`;
+                        clusterEl.textContent = entry.count;
+
+                        const names = entry.items.map(it => it.pin.id).join(' & ');
+                        clusterEl.setAttribute("data-tooltip", `${entry.count} étapes : ${names} (Cliquez pour voir le plan détaillé)`);
+
+                        clusterEl.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            openCityView(entry);
+                        });
+
+                        if (entry.hasLastActive) {
+                            const truck = document.createElement("div");
+                            truck.classList.add("truck-indicator");
+                            truck.style.left = `${entry.x}%`;
+                            truck.style.top = `${entry.y}%`;
+                            truck.innerHTML = `<img src="Camion MPB.svg" alt="Camion">`;
+                            pinsLayer.appendChild(truck);
+                        }
+
+                        pinsLayer.appendChild(clusterEl);
+                    } else {
+                        // Étape unique
+                        const { pin, index, isActive } = entry.item;
+                        const pinElement = document.createElement("div");
+                        pinElement.classList.add("pin");
+                        pinElement.setAttribute("data-city", pin.id);
+                        if (pin.tooltipPos) {
+                            pinElement.setAttribute("data-tooltip-pos", pin.tooltipPos);
+                        }
+                        pinElement.style.left = `${pin.x}%`;
+                        pinElement.style.top = `${pin.y}%`;
+
+                        if (isActive) {
+                            if (index === lastActiveIndex) {
+                                const truck = document.createElement("div");
+                                truck.classList.add("truck-indicator");
+                                truck.style.left = `${pin.x}%`;
+                                truck.style.top = `${pin.y}%`;
+                                truck.innerHTML = `<img src="Camion MPB.svg" alt="Camion">`;
+                                pinsLayer.appendChild(truck);
+                            }
+                        } else {
+                            pinElement.classList.add("inactive");
+                        }
+
+                        pinElement.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            openPanel(pin, pinElement, isActive);
+                        });
+
+                        pinsLayer.appendChild(pinElement);
+                    }
+                });
+            }
+
+            // Affichage initial de la carte de France
+            renderFranceMapPins();
 
             /* --- GESTION DU PANNEAU LATÉRAL --- */
             function formatFrenchDate(dateString) {
@@ -2066,7 +2719,15 @@
             function openPanel(pinData, pinElement, isActive) {
                 mapView.classList.add('panel-open');
                 document.querySelectorAll('.pin').forEach(p => p.classList.remove('active'));
-                pinElement.classList.add('active');
+                if (pinElement) {
+                    pinElement.classList.add('active');
+                }
+
+                if (leafletMapInstance && cityMapView.classList.contains('active')) {
+                    setTimeout(() => {
+                        leafletMapInstance.invalidateSize();
+                    }, 400);
+                }
 
                 // Titre et Date
                 galleryCityName.textContent = pinData.id;
@@ -2128,6 +2789,13 @@
             function closePanel() {
                 mapView.classList.remove('panel-open');
                 document.querySelectorAll('.pin').forEach(p => p.classList.remove('active'));
+                
+                if (leafletMapInstance && cityMapView.classList.contains('active')) {
+                    setTimeout(() => {
+                        leafletMapInstance.invalidateSize();
+                    }, 400);
+                }
+
                 setTimeout(() => {
                     if (!mapView.classList.contains('panel-open')) {
                         photoGrid.innerHTML = "";
@@ -2138,7 +2806,14 @@
                     }
                 }, 800);
             }
-            mapCloseOverlay.addEventListener("click", closePanel);
+
+            mapCloseOverlay.addEventListener("click", () => {
+                if (mapView.classList.contains('panel-open')) {
+                    closePanel();
+                } else if (cityMapView.classList.contains('active')) {
+                    closeCityView();
+                }
+            });
 
             /* --- LIGHTBOX --- */
             const lightbox = document.getElementById("lightbox");
@@ -2170,6 +2845,8 @@
                         toggleMenu();
                     } else if (mapView.classList.contains('panel-open')) {
                         closePanel();
+                    } else if (cityMapView.classList.contains('active')) {
+                        closeCityView();
                     }
                 }
             });
