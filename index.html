@@ -2325,7 +2325,7 @@
                     lat: 48.1765, lng: 3.2896,
                     date: '2026-10-01T12:00:00+02:00', 
                     lieu: 'Centre Mondial Pare-Brise Sens (Parking extérieur, 3 Boulevard Jean Delpech ZAC Sud, 89100 Sens)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Auxerre', 
@@ -2333,7 +2333,7 @@
                     lat: 47.8067, lng: 3.5817,
                     date: '2026-10-02T12:00:00+02:00', 
                     lieu: 'Centre Mondial Pare-Brise Auxerre (Parking extérieur, 1 rue de la Plaine Saint-Martin, 89000 Auxerre)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Poitiers - Futuroscope', 
@@ -2341,7 +2341,7 @@
                     lat: 46.6698, lng: 0.3638,
                     date: '2026-10-05T12:00:00+02:00', 
                     lieu: 'Arena FUTUROSCOPE (Entrée du parking principal, Avenue du Futuroscope, 86360 Chasseneuil-du-Poitou)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Poitiers - Pacifica', 
@@ -2351,7 +2351,7 @@
                     endDate: '2026-10-07T12:00:00+02:00', 
                     dateLabel: 'les 6 et 7 octobre 2026', 
                     lieu: 'PACIFICA Poitiers (Parking extérieur, 1 avenue Galilée, Immeuble Arobase 7bis, 86360 Chasseneuil-du-Poitou)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Niort - Campus MACIF', 
@@ -2359,7 +2359,7 @@
                     lat: 46.3100, lng: -0.4681,
                     date: '2026-10-08T12:00:00+02:00', 
                     lieu: 'Campus MACIF - Espace Buteaudrie (Boulevard Jean Moulin, 79000 Niort)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Beaune', 
@@ -2367,7 +2367,7 @@
                     lat: 47.0125, lng: 4.8447,
                     date: '2026-10-13T12:00:00+02:00', 
                     lieu: 'Palais des Congrès de Beaune (Parking principal, 19 avenue Charles de Gaulle, 21200 Beaune)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Rouen', 
@@ -2375,7 +2375,7 @@
                     lat: 49.4339, lng: 1.0753,
                     date: '2026-10-15T12:00:00+02:00', 
                     lieu: 'Centre Mondial Pare-Brise Rouen (Parking extérieur, 14 avenue Jean Rondeaux, 76000 Rouen)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Niort - MAIF', 
@@ -2385,7 +2385,7 @@
                     endDate: '2026-10-22T12:00:00+02:00', 
                     dateLabel: 'du 19 au 22 octobre 2026', 
                     lieu: 'Gymnase MAIF (7 avenue Salvador Allendé, 79000 Niort)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Verdun', 
@@ -2393,7 +2393,7 @@
                     lat: 49.1565, lng: 5.3617,
                     date: '2026-10-29T12:00:00+01:00', 
                     lieu: 'Hôtel du Tigre (22 avenue de Paris, 55100 Verdun)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 },
                 { 
                     id: 'Châlons-en-Champagne', 
@@ -2401,7 +2401,7 @@
                     lat: 48.9755, lng: 4.3566,
                     date: '2026-10-30T12:00:00+01:00', 
                     lieu: 'Centre Mondial Pare-Brise Châlons-en-Champagne (9 avenue Ampère, 51000 Châlons-en-Champagne)', 
-                    photos: ['shoootin-photo-12.jpg', 'shoootin-photo-3.jpg'] 
+                    photos: []
                 }
             ];
 
@@ -2750,7 +2750,7 @@
 
                 if (isActive) {
                     // Étape passée / actuelle : affichage de la grille de photos
-                    pinData.photos.forEach((src, index) => {
+                    (pinData.photos || []).forEach((src, index) => {
                         const img = document.createElement("img");
 
                         img.onerror = function () {
