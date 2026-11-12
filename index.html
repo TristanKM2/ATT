@@ -2890,9 +2890,10 @@
                     galleryCityDate.textContent = (isActive ? 'Passage le ' : 'Étape prévue le ') + formatFrenchDate(pinData.date);
                 }
 
-                // Lieu / Adresse précise
-                if (pinData.lieu) {
-                    galleryCityVenue.textContent = '📍 ' + pinData.lieu;
+                // Lieu / Adresse précise (on ne garde que le code postal, sans le nom de la ville)
+                const lieuAffiche = pinData.lieu ? pinData.lieu.replace(/(\b\d{5})\s+[^,()]+(?=\)\s*$)/, '$1') : '';
+                if (lieuAffiche) {
+                    galleryCityVenue.textContent = '📍 ' + lieuAffiche;
                     galleryCityVenue.classList.add('visible');
                 } else {
                     galleryCityVenue.textContent = '';
@@ -2923,7 +2924,7 @@
                 } else {
                     // Étape future : encart informatif et engageant
                     const dateAffichageTexte = pinData.dateLabel ? pinData.dateLabel : 'le ' + formatFrenchDate(pinData.date);
-                    const lieuTexte = pinData.lieu ? `<br><span style="display:inline-block; margin-top:8px; font-weight:700; color:var(--blue);">📍 ${pinData.lieu}</span>` : '';
+                    const lieuTexte = lieuAffiche ? `<br><span style="display:inline-block; margin-top:8px; font-weight:700; color:var(--blue);">📍 ${lieuAffiche}</span>` : '';
                     const futureBox = document.createElement("div");
                     futureBox.classList.add("future-stage-box");
                     futureBox.innerHTML = `
