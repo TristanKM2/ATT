@@ -1065,6 +1065,27 @@
             flex-wrap: wrap;
         }
 
+        .tour-pause-notice {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px 18px;
+            background-color: var(--yellow);
+            color: var(--blue);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .tour-pause-notice[hidden] {
+            display: none;
+        }
+
         .legend-item {
             display: flex;
             align-items: center;
@@ -2082,6 +2103,11 @@
                         <div id="city-stages-bar" class="city-stages-bar"></div>
                     </div>
 
+                    <div id="tour-pause-notice" class="tour-pause-notice" hidden>
+                        <span aria-hidden="true">🎄</span>
+                        <span>Après Cournon-d'Auvergne le 9 décembre, le camion ADAS TechTour fait une pause pour les fêtes : reprise de la tournée le 4 janvier 2027 !</span>
+                    </div>
+
                     <div class="map-legend">
                         <div class="legend-item"><span class="legend-dot dot-active"></span> Étape passée</div>
                         <div class="legend-item"><span class="legend-dot dot-future"></span> Étape à venir</div>
@@ -2233,7 +2259,7 @@
             const pinsData = [
                 { 
                     id: 'Saint-Malo', 
-                    x: 29, y: 28, 
+                    x: 22.0, y: 28.4, 
                     lat: 48.6515, lng: -2.0193,
                     date: '2026-06-12T12:00:00+02:00', 
                     lieu: 'Palais du Grand Large (1 Quai Duguay-Trouin, 35400 Saint-Malo)', 
@@ -2247,7 +2273,7 @@
                 },
                 { 
                     id: 'Hippodrome de Saint-Cloud', 
-                    x: 52.0, y: 26.5, 
+                    x: 53.2, y: 25.4, 
                     lat: 48.8527, lng: 2.2055,
                     tooltipPos: 'bottom-left',
                     date: '2026-06-15T12:00:00+02:00', 
@@ -2261,7 +2287,7 @@
                 },
                 { 
                     id: 'Paris - Longchamp', 
-                    x: 53.2, y: 25.6, 
+                    x: 53.4, y: 25.2, 
                     lat: 48.8616, lng: 2.2313,
                     tooltipPos: 'top-right',
                     date: '2026-09-15T12:00:00+02:00', 
@@ -2273,7 +2299,7 @@
                 },
                 { 
                     id: 'Le Mans', 
-                    x: 38, y: 36, 
+                    x: 38.2, y: 35.5, 
                     lat: 47.9560, lng: 0.2077,
                     date: '2026-09-17T12:00:00+02:00', 
                     lieu: 'Parking du Circuit des 24h du Mans (Place Luigi Chinetti, 72100 Le Mans)', 
@@ -2285,7 +2311,7 @@
                 },
                 { 
                     id: 'Toulouse', 
-                    x: 45, y: 83, 
+                    x: 46.8, y: 84.0, 
                     lat: 43.6635, lng: 1.3552,
                     date: '2026-09-22T12:00:00+02:00', 
                     lieu: 'MEETT Toulouse Événements (Rue Claudie Haigneré, 31840 Aussonne)', 
@@ -2296,7 +2322,7 @@
                 },
                 { 
                     id: 'Aix-en-Provence', 
-                    x: 73, y: 82, 
+                    x: 76.5, y: 84.0, 
                     lat: 43.4726, lng: 5.3998,
                     date: '2026-09-24T12:00:00+02:00', 
                     lieu: 'Aréna du Pays d\'Aix (1955 Rue Claude Nicolas Ledoux, 13290 Aix-en-Provence)', 
@@ -2308,7 +2334,7 @@
                 },
                 { 
                     id: 'Lyon Bron', 
-                    x: 67, y: 61, 
+                    x: 73.7, y: 60.7, 
                     lat: 45.7251, lng: 4.9289,
                     date: '2026-09-29T12:00:00+02:00', 
                     lieu: 'Novotel Lyon Bron (260 Avenue Jean Monnet, 69500 Bron)', 
@@ -2321,89 +2347,205 @@
                 },
                 { 
                     id: 'Sens', 
-                    x: 56, y: 34, 
+                    x: 61.4, y: 33.0, 
                     lat: 48.1765, lng: 3.2896,
                     date: '2026-10-01T12:00:00+02:00', 
-                    lieu: 'Centre Mondial Pare-Brise Sens (Parking extérieur, 3 Boulevard Jean Delpech ZAC Sud, 89100 Sens)', 
-                    photos: []
+                    lieu: 'Centre Mondial Pare-Brise Sens (Parking extérieur, 3 Boulevard Jean Delpech ZAC Sud, 89100 Sens)',
+                    photos: [
+                        'photos/sens/photo-1.jpg',
+                        'photos/sens/photo-2.jpg',
+                        'photos/sens/photo-3.jpg'
+                    ]
                 },
                 { 
                     id: 'Auxerre', 
-                    x: 58, y: 40, 
+                    x: 63.6, y: 37.2, 
                     lat: 47.8067, lng: 3.5817,
                     date: '2026-10-02T12:00:00+02:00', 
-                    lieu: 'Centre Mondial Pare-Brise Auxerre (Parking extérieur, 1 rue de la Plaine Saint-Martin, 89000 Auxerre)', 
-                    photos: []
+                    lieu: 'Centre Mondial Pare-Brise Auxerre (Parking extérieur, 1 rue de la Plaine Saint-Martin, 89000 Auxerre)',
+                    photos: ['photos/auxerre/photo-1.jpg']
                 },
                 { 
                     id: 'Poitiers - Futuroscope', 
-                    x: 39.0, y: 50.8, 
+                    x: 39.3, y: 50.0, 
                     lat: 46.6698, lng: 0.3638,
                     date: '2026-10-05T12:00:00+02:00', 
-                    lieu: 'Arena FUTUROSCOPE (Entrée du parking principal, Avenue du Futuroscope, 86360 Chasseneuil-du-Poitou)', 
-                    photos: []
+                    lieu: 'Arena FUTUROSCOPE (Entrée du parking principal, Avenue du Futuroscope, 86360 Chasseneuil-du-Poitou)',
+                    photos: [
+                        'photos/poitiers-futuroscope/photo-1.jpg',
+                        'photos/poitiers-futuroscope/photo-2.jpg',
+                        'photos/poitiers-futuroscope/photo-3.jpg'
+                    ]
                 },
-                { 
-                    id: 'Poitiers - Pacifica', 
-                    x: 39.3, y: 51.5, 
+                {
+                    id: 'Poitiers - Pacifica',
+                    x: 39.3, y: 50.2, 
                     lat: 46.6562, lng: 0.3649,
                     date: '2026-10-06T12:00:00+02:00', 
                     endDate: '2026-10-07T12:00:00+02:00', 
                     dateLabel: 'les 6 et 7 octobre 2026', 
-                    lieu: 'PACIFICA Poitiers (Parking extérieur, 1 avenue Galilée, Immeuble Arobase 7bis, 86360 Chasseneuil-du-Poitou)', 
-                    photos: []
+                    lieu: 'PACIFICA Poitiers (Parking extérieur, 1 avenue Galilée, Immeuble Arobase 7bis, 86360 Chasseneuil-du-Poitou)',
+                    photos: [
+                        'photos/poitiers-pacifica/photo-1.jpg',
+                        'photos/poitiers-pacifica/photo-2.jpg'
+                    ]
                 },
                 { 
                     id: 'Niort - Campus MACIF', 
-                    x: 33.2, y: 56.2, 
+                    x: 33.1, y: 54.1, 
                     lat: 46.3100, lng: -0.4681,
                     date: '2026-10-08T12:00:00+02:00', 
-                    lieu: 'Campus MACIF - Espace Buteaudrie (Boulevard Jean Moulin, 79000 Niort)', 
-                    photos: []
+                    lieu: 'Campus MACIF - Espace Buteaudrie (Boulevard Jean Moulin, 79000 Niort)',
+                    photos: [
+                        'photos/niort-macif/photo-1.jpg',
+                        'photos/niort-macif/photo-2.jpg'
+                    ]
                 },
                 { 
                     id: 'Beaune', 
-                    x: 67, y: 47, 
+                    x: 73.1, y: 46.2, 
                     lat: 47.0125, lng: 4.8447,
                     date: '2026-10-13T12:00:00+02:00', 
-                    lieu: 'Palais des Congrès de Beaune (Parking principal, 19 avenue Charles de Gaulle, 21200 Beaune)', 
-                    photos: []
+                    lieu: 'Palais des Congrès de Beaune (Parking principal, 19 avenue Charles de Gaulle, 21200 Beaune)',
+                    photos: [
+                        'photos/beaune/photo-1.jpg',
+                        'photos/beaune/photo-2.jpg'
+                    ]
                 },
                 { 
                     id: 'Rouen', 
-                    x: 46, y: 19, 
+                    x: 44.7, y: 18.8, 
                     lat: 49.4339, lng: 1.0753,
                     date: '2026-10-15T12:00:00+02:00', 
-                    lieu: 'Centre Mondial Pare-Brise Rouen (Parking extérieur, 14 avenue Jean Rondeaux, 76000 Rouen)', 
-                    photos: []
+                    lieu: 'Centre Mondial Pare-Brise Rouen (Parking extérieur, 14 avenue Jean Rondeaux, 76000 Rouen)',
+                    photos: ['photos/rouen/photo-1.jpg']
                 },
                 { 
                     id: 'Niort - MAIF', 
-                    x: 33.6, y: 56.7, 
+                    x: 32.9, y: 53.9, 
                     lat: 46.3268, lng: -0.4877,
                     date: '2026-10-19T12:00:00+02:00', 
                     endDate: '2026-10-22T12:00:00+02:00', 
                     dateLabel: 'du 19 au 22 octobre 2026', 
-                    lieu: 'Gymnase MAIF (7 avenue Salvador Allendé, 79000 Niort)', 
-                    photos: []
+                    lieu: 'Gymnase MAIF (7 avenue Salvador Allendé, 79000 Niort)',
+                    photos: ['photos/niort-maif/photo-1.jpg']
                 },
                 { 
                     id: 'Verdun', 
-                    x: 75, y: 23, 
+                    x: 77.0, y: 21.9, 
                     lat: 49.1565, lng: 5.3617,
                     date: '2026-10-29T12:00:00+01:00', 
-                    lieu: 'Hôtel du Tigre (22 avenue de Paris, 55100 Verdun)', 
-                    photos: []
+                    lieu: 'Hôtel du Tigre (22 avenue de Paris, 55100 Verdun)',
+                    photos: ['photos/verdun/photo-1.jpg']
                 },
                 { 
                     id: 'Châlons-en-Champagne', 
-                    x: 64, y: 27, 
+                    x: 69.4, y: 24.0, 
                     lat: 48.9755, lng: 4.3566,
                     date: '2026-10-30T12:00:00+01:00', 
-                    lieu: 'Centre Mondial Pare-Brise Châlons-en-Champagne (9 avenue Ampère, 51000 Châlons-en-Champagne)', 
+                    lieu: 'Centre Mondial Pare-Brise Châlons-en-Champagne (9 avenue Ampère, 51000 Châlons-en-Champagne)',
+                    photos: ['photos/chalons-en-champagne/photo-1.jpg']
+                },
+                {
+                    id: 'Chambray-lès-Tours',
+                    x: 42.0, y: 42.5,
+                    lat: 47.3360, lng: 0.7140,
+                    date: '2026-11-03T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Chambray-lès-Tours (37170 Chambray-lès-Tours)',
+                    photos: ['photos/chambray-les-tours/photo-1.jpg']
+                },
+                {
+                    id: 'Mondelange',
+                    x: 83.0, y: 20.7,
+                    lat: 49.2630, lng: 6.1670,
+                    date: '2026-11-10T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Mondelange (57300 Mondelange)',
+                    photos: ['photos/mondelange/photo-1.jpg']
+                },
+                {
+                    id: 'Haguenau',
+                    x: 93.5, y: 26.5,
+                    lat: 48.8160, lng: 7.7900,
+                    date: '2026-11-12T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Haguenau (67500 Haguenau)',
+                    photos: []
+                },
+                {
+                    id: 'Sarreguemines',
+                    x: 89.8, y: 22.4,
+                    lat: 49.1100, lng: 7.0680,
+                    date: '2026-11-13T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Sarreguemines (57200 Sarreguemines)',
+                    photos: []
+                },
+                {
+                    id: 'Vinzelles',
+                    x: 72.6, y: 54.6,
+                    lat: 46.2680, lng: 4.7770,
+                    date: '2026-11-17T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Vinzelles (71680 Vinzelles)',
+                    photos: []
+                },
+                {
+                    id: 'Le Creusot',
+                    x: 69.9, y: 48.5,
+                    lat: 46.8070, lng: 4.4280,
+                    date: '2026-11-18T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Le Creusot (71200 Le Creusot)',
+                    photos: []
+                },
+                {
+                    id: 'Saint-Parize-le-Châtel',
+                    x: 60.6, y: 48.0,
+                    lat: 46.8540, lng: 3.1830,
+                    date: '2026-11-19T12:00:00+01:00',
+                    lieu: 'Garage Ellipse Auto, point relais Mondial Pare-Brise (58490 Saint-Parize-le-Châtel)',
+                    photos: []
+                },
+                {
+                    id: 'Avermes (Moulins)',
+                    x: 61.5, y: 51.0,
+                    lat: 46.5860, lng: 3.3070,
+                    date: '2026-11-20T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Avermes (03000 Avermes)',
+                    photos: []
+                },
+                {
+                    id: 'Pau - Pacifica',
+                    x: 33.9, y: 87.0,
+                    lat: 43.3830, lng: -0.3550,
+                    date: '2026-11-25T12:00:00+01:00',
+                    endDate: '2026-11-26T12:00:00+01:00',
+                    dateLabel: 'les 25 et 26 novembre 2026',
+                    lieu: 'PACIFICA Pau (64121 Serres-Castet)',
+                    photos: []
+                },
+                {
+                    id: 'Chaumont',
+                    x: 75.3, y: 33.7,
+                    lat: 48.1110, lng: 5.1390,
+                    date: '2026-12-03T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Chaumont (52000 Chaumont)',
+                    photos: []
+                },
+                {
+                    id: 'Cournon-d\'Auvergne',
+                    x: 60.7, y: 60.6,
+                    lat: 45.7360, lng: 3.1960,
+                    date: '2026-12-09T12:00:00+01:00',
+                    lieu: 'Centre Mondial Pare-Brise Cournon-d\'Auvergne (63800 Cournon-d\'Auvergne)',
                     photos: []
                 }
             ];
+
+            // Pause hivernale : message affiché automatiquement pendant l'arrêt de la tournée
+            const pauseTournee = {
+                debut: new Date('2026-11-30T00:00:00+01:00'),
+                fin: new Date('2027-01-04T00:00:00+01:00')
+            };
+            if (dateActuelle >= pauseTournee.debut && dateActuelle < pauseTournee.fin) {
+                document.getElementById('tour-pause-notice').hidden = false;
+            }
 
             // Éléments du DOM
             const franceMapView = document.getElementById("france-map-view");
@@ -2459,6 +2601,9 @@
             // À partir du 30 de chaque mois, on anticipe et on affiche les étapes du mois suivant
             const isTransitionEndOfMonth = currentDay >= 30;
 
+            // Mois affichés en avance quoi qu'il arrive (format AAAA-MM), ex. décembre : peu d'étapes
+            const moisAffichesEnAvance = ['2026-12'];
+
             // Récupération des points visibles selon le filtre mensuel
             const visiblePins = [];
             pinsData.forEach((pin, index) => {
@@ -2468,7 +2613,10 @@
                 const isCurrentMonth = (pinDate.getFullYear() === currentYear && pinDate.getMonth() === currentMonth);
                 const isNextMonth = (pinDate.getFullYear() === nextYear && pinDate.getMonth() === nextMonth);
 
-                const estVisible = isActive || isCurrentMonth || (isTransitionEndOfMonth && isNextMonth);
+                const moisPin = `${pinDate.getFullYear()}-${String(pinDate.getMonth() + 1).padStart(2, '0')}`;
+                const isMoisEnAvance = moisAffichesEnAvance.includes(moisPin);
+
+                const estVisible = isActive || isCurrentMonth || (isTransitionEndOfMonth && isNextMonth) || isMoisEnAvance;
                 if (estVisible) {
                     visiblePins.push({ pin, index, isActive });
                 }
@@ -2554,6 +2702,8 @@
                 let zoneName = "Plan de la zone";
                 if (cluster.items.some(i => i.pin.id.includes("Saint-Cloud") || i.pin.id.includes("Paris"))) {
                     zoneName = "Paris & Saint-Cloud";
+                } else if (cluster.items.some(i => i.pin.id.includes("Avermes") || i.pin.id.includes("Saint-Parize"))) {
+                    zoneName = "Nevers - Moulins";
                 } else if (cluster.items.some(i => i.pin.id.includes("Poitiers"))) {
                     zoneName = "Poitiers - Chasseneuil";
                 } else if (cluster.items.some(i => i.pin.id.includes("Niort"))) {
